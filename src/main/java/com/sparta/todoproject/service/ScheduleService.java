@@ -60,7 +60,7 @@ public class ScheduleService {
         return DELETE_SUCCESS; // String이 아니라 ResponseEntity 반환으로 바꿀 수는 없을까..?
     }
 
-    private Schedule findSchedule(Long id) {
+    public Schedule findSchedule(Long id) {
         Optional<Schedule> schedule = scheduleRepository.findById(id);
 
         return scheduleRepository.findById(id).orElseThrow(() -> {
