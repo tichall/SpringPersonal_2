@@ -10,33 +10,33 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/schedules")
 @RequiredArgsConstructor
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
-    @PostMapping("/schedule")
+    @PostMapping()
     public ScheduleResponseDto createSchedule(@RequestBody ScheduleRequestDto requestDto) {
         return scheduleService.createSchedule(requestDto);
     }
 
-    @GetMapping("/schedules")
+    @GetMapping()
     public List<ScheduleResponseDto> getSchedules() {
         return scheduleService.getSchedules();
     }
 
-    @GetMapping("/schedule/{id}")
+    @GetMapping("/{id}")
     public ScheduleResponseDto getScheduleById(@PathVariable Long id) {
         return scheduleService.getScheduleById(id);
     }
 
-    @PutMapping("/schedule/{id}")
+    @PutMapping("/{id}")
     public ScheduleResponseDto updateSchedule(@PathVariable Long id, @RequestBody ScheduleRequestDto requestDto) {
         return scheduleService.updateSchedule(id, requestDto);
     }
 
-    @DeleteMapping("/schedule/{id}")
+    @DeleteMapping("/{id}")
     public String deleteSchedule(@PathVariable Long id, @RequestBody ScheduleDeleteRequestDto requestDto) {
         return scheduleService.deleteSchedule(id, requestDto);
     }
