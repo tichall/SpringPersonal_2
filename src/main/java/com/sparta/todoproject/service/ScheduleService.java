@@ -65,9 +65,9 @@ public class ScheduleService {
 
         return scheduleRepository.findById(id).orElseThrow(() -> {
             if (id < scheduleRepository.findTopByOrderByIdDesc().getId()) {
-                throw new DeletedScheduleAccessException("삭제된 일정 접근", ErrorCode.DELETED_SCHEDULE);
+                throw new DeletedScheduleAccessException("삭제된 일정 접근");
             }
-            throw new ScheduleNotFoundException("선택한 일정은 존재하지 않습니다!", ErrorCode.SCHEDULE_NOT_FOUND);
+            throw new ScheduleNotFoundException("선택한 일정은 존재하지 않습니다!");
         });
     }
 
@@ -80,7 +80,7 @@ public class ScheduleService {
      */
     private void checkPassword(String InputPassword, Schedule schedule) {
         if (!Objects.equals(InputPassword, schedule.getPassword())) {
-            throw new PasswordInvalidException("비밀번호 오류", ErrorCode.PASSWORD_INVALID);
+            throw new PasswordInvalidException("비밀번호 오류");
         }
     }
 }

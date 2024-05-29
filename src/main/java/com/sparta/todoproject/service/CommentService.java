@@ -27,6 +27,9 @@ public class CommentService {
 
     public ResponseEntity<CommentResponseDto> addComment(Long id, CommentRequestDto requestDto) {
         Optional.ofNullable(requestDto.getContents()).orElseThrow(() -> new IllegalArgumentException("댓글 내용이 비어있습니다."));
+        if (requestDto.getContents().isBlank()) {
+            throw new IllegalArgumentException("댓글 내용이 비어있습니다.");
+        }
 
         Comment comment = new Comment(requestDto, scheduleService.findSchedule(id));
         commentRepository.save(comment);
