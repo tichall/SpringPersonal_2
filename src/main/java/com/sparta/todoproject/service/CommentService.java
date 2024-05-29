@@ -104,17 +104,15 @@ public class CommentService {
     }
 
     private void checkContentsValid(CommentRequestDto requestDto) {
-        // 한꺼번에 처리할 수 있는 방법이 있을 것 같다..
-        Optional.ofNullable(requestDto.getContents()).orElseThrow(() -> new IllegalArgumentException("댓글 내용이 비어있습니다."));
-        if (requestDto.getContents().isBlank()) {
+        // 앞 조건 없애면 500 오류 발생
+        if (requestDto.getContents() == null || requestDto.getContents().isBlank()) {
             throw new IllegalArgumentException("댓글 내용이 비어있습니다.");
         }
     }
 
     // 오버로딩
     private void checkContentsValid(CommentUpdateRequestDto requestDto) {
-        Optional.ofNullable(requestDto.getContents()).orElseThrow(() -> new IllegalArgumentException("댓글 내용이 비어있습니다."));
-        if (requestDto.getContents().isBlank()) {
+        if (requestDto.getContents() == null || requestDto.getContents().isBlank()) {
             throw new IllegalArgumentException("댓글 내용이 비어있습니다.");
         }
     }
