@@ -18,12 +18,10 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final ScheduleRepository scheduleRepository;
     private final ScheduleService scheduleService; // 여기 있는 메서드 쓰려고 이렇게 주입 받아와도 괜찮은가..?
 
-    public CommentService(CommentRepository commentRepository, ScheduleRepository scheduleRepository, ScheduleService scheduleService) {
+    public CommentService(CommentRepository commentRepository,ScheduleService scheduleService) {
         this.commentRepository = commentRepository;
-        this.scheduleRepository = scheduleRepository;
         this.scheduleService = scheduleService;
     }
 
@@ -104,17 +102,15 @@ public class CommentService {
     }
 
     private void checkContentsValid(CommentRequestDto requestDto) {
-        // 한꺼번에 처리할 수 있는 방법이 있을 것 같다..
-        Optional.ofNullable(requestDto.getContents()).orElseThrow(() -> new IllegalArgumentException("댓글 내용이 비어있습니다."));
-        if (requestDto.getContents().isBlank()) {
+        // 앞 조건 없애면 500 오류 발생
+        if (requestDto.getContents() == null || requestDto.getContents().isBlank()) {
             throw new IllegalArgumentException("댓글 내용이 비어있습니다.");
         }
     }
 
     // 오버로딩
     private void checkContentsValid(CommentUpdateRequestDto requestDto) {
-        Optional.ofNullable(requestDto.getContents()).orElseThrow(() -> new IllegalArgumentException("댓글 내용이 비어있습니다."));
-        if (requestDto.getContents().isBlank()) {
+        if (requestDto.getContents() == null || requestDto.getContents().isBlank()) {
             throw new IllegalArgumentException("댓글 내용이 비어있습니다.");
         }
     }
