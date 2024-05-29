@@ -6,8 +6,7 @@ import com.sparta.todoproject.dto.ScheduleResponseDto;
 import com.sparta.todoproject.entity.Schedule;
 import com.sparta.todoproject.exception.DeletedScheduleAccessException;
 import com.sparta.todoproject.exception.PasswordInvalidException;
-import com.sparta.todoproject.exception.ScheduleNotFoundException;
-import com.sparta.todoproject.exception.ErrorCode;
+import com.sparta.todoproject.exception.ObjectNotFoundException;
 import com.sparta.todoproject.repository.ScheduleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,14 +59,14 @@ public class ScheduleService {
         return DELETE_SUCCESS; // String이 아니라 ResponseEntity 반환으로 바꿀 수는 없을까..?
     }
 
-    private Schedule findSchedule(Long id) {
+    public Schedule findSchedule(Long id) {
         Optional<Schedule> schedule = scheduleRepository.findById(id);
 
         return scheduleRepository.findById(id).orElseThrow(() -> {
             if (id < scheduleRepository.findTopByOrderByIdDesc().getId()) {
-                throw new DeletedScheduleAccessException("삭제된 일정 접근", ErrorCode.DELETED_SCHEDULE);
+                throw new DeletedScheduleAccessException("삭제된 일정 접근");
             }
-            throw new ScheduleNotFoundException("선택한 일정은 존재하지 않습니다!", ErrorCode.SCHEDULE_NOT_FOUND);
+            throw new ObjectNotFoundException("선택한 일정은 존재하지 않습니다!");
         });
     }
 
@@ -80,7 +79,7 @@ public class ScheduleService {
      */
     private void checkPassword(String InputPassword, Schedule schedule) {
         if (!Objects.equals(InputPassword, schedule.getPassword())) {
-            throw new PasswordInvalidException("비밀번호 오류", ErrorCode.PASSWORD_INVALID);
+            throw new PasswordInvalidException("비밀번호 오류");
         }
     }
 }

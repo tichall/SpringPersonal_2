@@ -1,13 +1,12 @@
 package com.sparta.todoproject.exception;
 
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 //@ResponseStatus(HttpStatus.UNAUTHORIZED)
 @Getter
 public class PasswordInvalidException extends RuntimeException {
-    private ErrorCode errorCode;
-    public PasswordInvalidException(String msg, ErrorCode errorCode) {
+    public PasswordInvalidException(String msg) {
         super(msg);
-        this.errorCode = errorCode;
     }
 }

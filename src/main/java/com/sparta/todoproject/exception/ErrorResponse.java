@@ -1,14 +1,17 @@
 package com.sparta.todoproject.exception;
 
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 public class ErrorResponse {
-    private int status;
+    private HttpStatus status;
+    private int statusCode;
     private String errMsg;
 
-    public ErrorResponse(ErrorCode errorCode) {
-        this.status = errorCode.getStatus();
-        this.errMsg = errorCode.getMsg();
+    public ErrorResponse(HttpStatus status, String errMsg) {
+        this.status = status;
+        this.statusCode = status.value();
+        this.errMsg = errMsg;
     }
 }

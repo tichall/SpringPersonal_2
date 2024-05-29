@@ -1,13 +1,12 @@
 package com.sparta.todoproject.exception;
 
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 public class DeletedScheduleAccessException extends RuntimeException {
-    private ErrorCode errorCode;
 
-    public DeletedScheduleAccessException (String msg, ErrorCode errorCode) {
+    public DeletedScheduleAccessException (String msg) {
         super(msg);
-        this.errorCode = errorCode;
     }
 }
