@@ -1,12 +1,11 @@
 package com.sparta.todoproject.entity;
 
-import com.sparta.todoproject.dto.CommentAccessRequestDto;
+import com.sparta.todoproject.dto.CommentUpdateRequestDto;
 import com.sparta.todoproject.dto.CommentRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.bind.annotation.GetMapping;
 
 @Entity
 @Getter
@@ -35,7 +34,7 @@ public class Comment extends Timestamped {
         this.schedule = schedule;
     }
 
-    public void update(CommentAccessRequestDto requestDto) {
+    public void update(CommentUpdateRequestDto requestDto) {
         this.contents = requestDto.getContents();
     }
 }

@@ -1,9 +1,6 @@
 package com.sparta.todoproject.service;
 
-import com.sparta.todoproject.dto.CommentAccessRequestDto;
-import com.sparta.todoproject.dto.CommentRequestDto;
-import com.sparta.todoproject.dto.CommentResponseDto;
-import com.sparta.todoproject.dto.ResponseMsg;
+import com.sparta.todoproject.dto.*;
 import com.sparta.todoproject.entity.Comment;
 import com.sparta.todoproject.entity.Schedule;
 import com.sparta.todoproject.exception.ObjectNotFoundException;
@@ -11,7 +8,6 @@ import com.sparta.todoproject.repository.CommentRepository;
 import com.sparta.todoproject.repository.ScheduleRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.config.TaskSchedulerRouter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +45,7 @@ public class CommentService {
                 .data(new CommentResponseDto(comment))
                 .build();
 
+        // new로 생성해주지 않아도 되는 이유가 무엇일까..
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(responseMsg);
@@ -56,12 +53,13 @@ public class CommentService {
 
     /**
      * 댓글 수정
+     *
      * @param id
      * @param requestDto
      * @return
      */
     @Transactional
-    public ResponseEntity<ResponseMsg<CommentResponseDto>> updateComment(Long id, CommentAccessRequestDto requestDto) {
+    public ResponseEntity<ResponseMsg<CommentResponseDto>> updateComment(Long id, CommentUpdateRequestDto requestDto) {
         Schedule schedule = scheduleService.findSchedule(id);
         Comment comment = checkCommentValid(schedule, requestDto);
         checkContentsValid(requestDto);
@@ -81,15 +79,40 @@ public class CommentService {
                 .body(responseMsg);
     }
 
-//    @Transactional
-//    public ResponseEntity<CommentResponseDto> deleteComment(Long id, CommentAccessRequestDto requestDto) {
-//        Schedule schedule = scheduleService.findSchedule(id);
-//        Comment comment = checkCommentValid(schedule, requestDto);
-//        commentRepository.delete(comment);
-//
-//    }
+    /**
+     * 댓글 삭제
+     *
+     * @param id
+     * @param requestDto
+     * @return
+     */
+    @Transactional
+    public ResponseEntity<ResponseMsg<Void>> deleteComment(Long id, CommentAccessRequestDto requestDto) {
+        Schedule schedule = scheduleService.findSchedule(id);
+        Comment comment = checkCommentValid(schedule, requestDto);
+        commentRepository.delete(comment);
+
+        // data 값 안 줘버리면 null값 찍힘
+        ResponseMsg<Void> responseMsg = ResponseMsg.<Void>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("댓글 삭제 완료")
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(responseMsg);
+    }
 
     private void checkContentsValid(CommentRequestDto requestDto) {
+        // 한꺼번에 처리할 수 있는 방법이 있을 것 같다..
+        Optional.ofNullable(requestDto.getContents()).orElseThrow(() -> new IllegalArgumentException("댓글 내용이 비어있습니다."));
+        if (requestDto.getContents().isBlank()) {
+            throw new IllegalArgumentException("댓글 내용이 비어있습니다.");
+        }
+    }
+
+    // 오버로딩
+    private void checkContentsValid(CommentUpdateRequestDto requestDto) {
         Optional.ofNullable(requestDto.getContents()).orElseThrow(() -> new IllegalArgumentException("댓글 내용이 비어있습니다."));
         if (requestDto.getContents().isBlank()) {
             throw new IllegalArgumentException("댓글 내용이 비어있습니다.");
@@ -97,7 +120,6 @@ public class CommentService {
     }
 
     private Comment checkCommentValid(Schedule schedule, CommentAccessRequestDto requestDto) {
-        // 해당 스케줄에 있는 댓글 중 아이디가 일치하는 것을 찾아야 함...
         Comment comment = commentRepository.findByScheduleIdAndId(schedule.getId(), requestDto.getId()).orElseThrow(() -> new ObjectNotFoundException("선택한 댓글은 존재하지 않습니다."));
 
         if(!Objects.equals(comment.getUserId(), requestDto.getUserId())) {
@@ -105,5 +127,4 @@ public class CommentService {
         }
         return comment;
     }
-
 }

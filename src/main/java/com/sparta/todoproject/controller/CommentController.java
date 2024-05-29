@@ -1,11 +1,7 @@
 package com.sparta.todoproject.controller;
 
-import com.sparta.todoproject.dto.CommentAccessRequestDto;
-import com.sparta.todoproject.dto.CommentRequestDto;
-import com.sparta.todoproject.dto.CommentResponseDto;
-import com.sparta.todoproject.dto.ResponseMsg;
+import com.sparta.todoproject.dto.*;
 import com.sparta.todoproject.service.CommentService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,12 +21,12 @@ public class CommentController {
     }
 
     @PutMapping
-    public ResponseEntity<ResponseMsg<CommentResponseDto>> updateComment(@PathVariable Long id, @RequestBody CommentAccessRequestDto requestDto) {
+    public ResponseEntity<ResponseMsg<CommentResponseDto>> updateComment(@PathVariable Long id, @RequestBody CommentUpdateRequestDto requestDto) {
         return commentService.updateComment(id, requestDto);
     }
 
-//    @DeleteMapping()
-//    public ResponseEntity<> deleteComment(@PathVariable Long id, @RequestBody CommentAccessRequestDto requestDto) {
-//        return commentService.deleteComment(id, requestDto);
-//    }
+    @DeleteMapping
+    public ResponseEntity<ResponseMsg<Void>> deleteComment(@PathVariable Long id, @RequestBody CommentAccessRequestDto requestDto) {
+        return commentService.deleteComment(id, requestDto);
+    }
 }
