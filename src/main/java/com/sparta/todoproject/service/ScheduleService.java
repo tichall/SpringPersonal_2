@@ -6,8 +6,7 @@ import com.sparta.todoproject.dto.ScheduleResponseDto;
 import com.sparta.todoproject.entity.Schedule;
 import com.sparta.todoproject.exception.DeletedScheduleAccessException;
 import com.sparta.todoproject.exception.PasswordInvalidException;
-import com.sparta.todoproject.exception.ScheduleNotFoundException;
-import com.sparta.todoproject.exception.ErrorCode;
+import com.sparta.todoproject.exception.ObjectNotFoundException;
 import com.sparta.todoproject.repository.ScheduleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,7 +66,7 @@ public class ScheduleService {
             if (id < scheduleRepository.findTopByOrderByIdDesc().getId()) {
                 throw new DeletedScheduleAccessException("삭제된 일정 접근");
             }
-            throw new ScheduleNotFoundException("선택한 일정은 존재하지 않습니다!");
+            throw new ObjectNotFoundException("선택한 일정은 존재하지 않습니다!");
         });
     }
 

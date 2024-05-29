@@ -1,7 +1,6 @@
 package com.sparta.todoproject.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -18,7 +17,7 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
-    @ExceptionHandler({DeletedScheduleAccessException.class, ScheduleNotFoundException.class})
+    @ExceptionHandler({DeletedScheduleAccessException.class, ObjectNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleDeletedScheduleAccessException (Exception e) {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
         return ResponseEntity

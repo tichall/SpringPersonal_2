@@ -1,5 +1,6 @@
 package com.sparta.todoproject.entity;
 
+import com.sparta.todoproject.dto.CommentAccessRequestDto;
 import com.sparta.todoproject.dto.CommentRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -34,4 +35,7 @@ public class Comment extends Timestamped {
         this.schedule = schedule;
     }
 
+    public void update(CommentAccessRequestDto requestDto) {
+        this.contents = requestDto.getContents();
+    }
 }
