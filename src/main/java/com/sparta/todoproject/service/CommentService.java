@@ -3,6 +3,7 @@ package com.sparta.todoproject.service;
 import com.sparta.todoproject.dto.CommentAccessRequestDto;
 import com.sparta.todoproject.dto.CommentRequestDto;
 import com.sparta.todoproject.dto.CommentResponseDto;
+import com.sparta.todoproject.dto.ResponseMsg;
 import com.sparta.todoproject.entity.Comment;
 import com.sparta.todoproject.entity.Schedule;
 import com.sparta.todoproject.exception.ObjectNotFoundException;
@@ -30,27 +31,54 @@ public class CommentService {
         this.scheduleService = scheduleService;
     }
 
-    public ResponseEntity<CommentResponseDto> addComment(Long id, CommentRequestDto requestDto) {
+    /**
+     * 댓글 추가
+     * @param id
+     * @param requestDto
+     * @return
+     */
+    @Transactional
+    public ResponseEntity<ResponseMsg<CommentResponseDto>> addComment(Long id, CommentRequestDto requestDto) {
         checkContentsValid(requestDto);
         Comment comment = new Comment(requestDto, scheduleService.findSchedule(id));
         commentRepository.save(comment);
+
+        ResponseMsg<CommentResponseDto> responseMsg = new ResponseMsg<>(HttpStatus.CREATED.value(), "댓글 추가 완료", new CommentResponseDto(comment));
+
         return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(new CommentResponseDto(comment));
+                .status(HttpStatus.CREATED)
+                .body(responseMsg);
     }
 
+    /**
+     * 댓글 수정
+     * @param id
+     * @param requestDto
+     * @return
+     */
     @Transactional
-    public ResponseEntity<CommentResponseDto> updateComment(Long id, CommentAccessRequestDto requestDto) {
-        checkContentsValid(requestDto);
+    public ResponseEntity<ResponseMsg<CommentResponseDto>> updateComment(Long id, CommentAccessRequestDto requestDto) {
         Schedule schedule = scheduleService.findSchedule(id);
         Comment comment = checkCommentValid(schedule, requestDto);
+        checkContentsValid(requestDto);
 
         comment.update(requestDto);
         commentRepository.flush(); // 먼저 반영
+
+        ResponseMsg<CommentResponseDto> responseMsg = new ResponseMsg<>(HttpStatus.OK.value(), "댓글 추가 완료", new CommentResponseDto(comment));
+
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(new CommentResponseDto(comment));
+                .body(responseMsg);
     }
+
+//    @Transactional
+//    public ResponseEntity<CommentResponseDto> deleteComment(Long id, CommentAccessRequestDto requestDto) {
+//        Schedule schedule = scheduleService.findSchedule(id);
+//        Comment comment = checkCommentValid(schedule, requestDto);
+//        commentRepository.delete(comment);
+//
+//    }
 
     private void checkContentsValid(CommentRequestDto requestDto) {
         Optional.ofNullable(requestDto.getContents()).orElseThrow(() -> new IllegalArgumentException("댓글 내용이 비어있습니다."));
@@ -68,4 +96,5 @@ public class CommentService {
         }
         return comment;
     }
+
 }
