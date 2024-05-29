@@ -18,12 +18,10 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final ScheduleRepository scheduleRepository;
     private final ScheduleService scheduleService; // 여기 있는 메서드 쓰려고 이렇게 주입 받아와도 괜찮은가..?
 
-    public CommentService(CommentRepository commentRepository, ScheduleRepository scheduleRepository, ScheduleService scheduleService) {
+    public CommentService(CommentRepository commentRepository,ScheduleService scheduleService) {
         this.commentRepository = commentRepository;
-        this.scheduleRepository = scheduleRepository;
         this.scheduleService = scheduleService;
     }
 
