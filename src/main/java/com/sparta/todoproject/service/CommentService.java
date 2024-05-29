@@ -43,7 +43,11 @@ public class CommentService {
         Comment comment = new Comment(requestDto, scheduleService.findSchedule(id));
         commentRepository.save(comment);
 
-        ResponseMsg<CommentResponseDto> responseMsg = new ResponseMsg<>(HttpStatus.CREATED.value(), "댓글 추가 완료", new CommentResponseDto(comment));
+        ResponseMsg<CommentResponseDto> responseMsg = ResponseMsg.<CommentResponseDto>builder()
+                .statusCode(HttpStatus.CREATED.value())
+                .message("댓글 추가 완료")
+                .data(new CommentResponseDto(comment))
+                .build();
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -65,7 +69,12 @@ public class CommentService {
         comment.update(requestDto);
         commentRepository.flush(); // 먼저 반영
 
-        ResponseMsg<CommentResponseDto> responseMsg = new ResponseMsg<>(HttpStatus.OK.value(), "댓글 추가 완료", new CommentResponseDto(comment));
+        // 제네릭은 builder 바로 앞에 적어주는 것이 특징
+        ResponseMsg<CommentResponseDto> responseMsg = ResponseMsg.<CommentResponseDto>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("댓글 추가 완료")
+                .data(new CommentResponseDto(comment))
+                .build();
 
         return ResponseEntity
                 .status(HttpStatus.OK)
