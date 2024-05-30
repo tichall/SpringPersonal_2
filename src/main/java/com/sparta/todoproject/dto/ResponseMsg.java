@@ -4,13 +4,23 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.coyote.Response;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 @Getter
 @Setter
 @Builder
-// 에러 전달할 때도 T에 void 넣어서 사용할 수 있겠다..
 public class ResponseMsg<T> {
     private int statusCode;
     private String message;
     private T data;
+
+//    public ResponseEntity<ResponseMsg<T>> createSuccessResponseMsg(T data, String message) {
+//        ResponseMsg<T> responseMsg = new ResponseMsg<>(HttpStatus.OK.value(), message, data);
+//
+//        return ResponseEntity
+//                .status(HttpStatus.OK)
+//                .body(responseMsg);
+//    }
 }

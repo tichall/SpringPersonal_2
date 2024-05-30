@@ -6,18 +6,14 @@ import com.sparta.todoproject.entity.Schedule;
 import com.sparta.todoproject.entity.User;
 import com.sparta.todoproject.exception.ObjectNotFoundException;
 import com.sparta.todoproject.repository.CommentRepository;
-import com.sparta.todoproject.repository.ScheduleRepository;
 import com.sparta.todoproject.repository.UserRepository;
 import com.sparta.todoproject.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +31,7 @@ public class CommentService {
      * @return
      */
     @Transactional
-    public ResponseEntity<ResponseMsg<CommentResponseDto>> addComment(Long scheduleId, CommentRequestDto requestDto, UserDetailsImpl userDetails) {
+    public CommentResponseDto addComment(Long scheduleId, CommentRequestDto requestDto, UserDetailsImpl userDetails) {
         Schedule schedule = scheduleService.findSchedule(scheduleId);
         User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow(() ->
                 new UsernameNotFoundException("존재하지 않는 사용자입니다.")
@@ -44,16 +40,7 @@ public class CommentService {
         Comment comment = new Comment(requestDto, schedule, user);
         commentRepository.save(comment);
 
-        ResponseMsg<CommentResponseDto> responseMsg = ResponseMsg.<CommentResponseDto>builder()
-                .statusCode(HttpStatus.CREATED.value())
-                .message("댓글 추가 완료")
-                .data(new CommentResponseDto(comment))
-                .build();
-
-        // new로 생성해주지 않아도 되는 이유가 무엇일까..
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(responseMsg);
+        return new CommentResponseDto(comment);
     }
 
     /**
@@ -64,64 +51,35 @@ public class CommentService {
      * @return
      */
     @Transactional
-    public ResponseEntity<ResponseMsg<CommentResponseDto>> updateComment(Long scheduleId, Long id, CommentRequestDto requestDto) {
+    public CommentResponseDto updateComment(Long scheduleId, Long id, CommentRequestDto requestDto, UserDetailsImpl userDetails) {
         Schedule schedule = scheduleService.findSchedule(scheduleId);
-        Comment comment = checkCommentValid(schedule.getId(), id, requestDto);
-        // checkContentsValid(requestDto);
+        Comment comment = findComment(schedule.getId(), id, userDetails);
 
         comment.update(requestDto);
         commentRepository.flush(); // 먼저 반영
 
-        // 제네릭은 builder 바로 앞에 적어주는 것이 특징
-        ResponseMsg<CommentResponseDto> responseMsg = ResponseMsg.<CommentResponseDto>builder()
-                .statusCode(HttpStatus.OK.value())
-                .message("댓글 추가 완료")
-                .data(new CommentResponseDto(comment))
-                .build();
+        return new CommentResponseDto(comment);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(responseMsg);
     }
 
-    /**
-     * 댓글 삭제
-     *
-     * @param id
-     * @param requestDto
-     * @return
-     */
+
     @Transactional
-    public ResponseEntity<ResponseMsg<Void>> deleteComment(Long scheduleId, Long id, CommentAccessRequestDto requestDto) {
+    public void deleteComment(Long scheduleId, Long id, UserDetailsImpl userDetails) {
         Schedule schedule = scheduleService.findSchedule(scheduleId);
-//        Comment comment = checkCommentValid(schedule.getId(), id, requestDto);
-//        commentRepository.delete(comment);
 
-        // data 값 안 줘버리면 null값 찍힘
-        ResponseMsg<Void> responseMsg = ResponseMsg.<Void>builder()
-                .statusCode(HttpStatus.OK.value())
-                .message("댓글 삭제 완료")
-                .build();
+        Comment comment = findComment(schedule.getId(), id, userDetails);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(responseMsg);
-    }
-
-    private void checkContentsValid(CommentRequestDto requestDto) {
-        // 앞 조건 없애면 500 오류 발생
-        if (requestDto.getContents() == null || requestDto.getContents().isBlank()) {
-            throw new IllegalArgumentException("댓글 내용이 비어있습니다.");
-        }
+        commentRepository.delete(comment);
     }
 
 
-    private Comment checkCommentValid(Long scheduleId, Long id, CommentRequestDto requestDto) {
+    private Comment findComment(Long scheduleId, Long id, UserDetailsImpl userDetails) {
         Comment comment = commentRepository.findByScheduleIdAndId(scheduleId, id).orElseThrow(() -> new ObjectNotFoundException("선택한 댓글은 존재하지 않습니다."));
 
-//        if(!Objects.equals(comment.getUserId(), requestDto.getUserId())) {
-//            throw new IllegalArgumentException("유저 아이디가 일치하지 않습니다.");
-//        }
+        if(!Objects.equals(comment.getUser().getId(), userDetails.getUser().getId())) {
+            throw new IllegalArgumentException("댓글 작성자가 아닙니다.");
+        }
+
         return comment;
     }
 }

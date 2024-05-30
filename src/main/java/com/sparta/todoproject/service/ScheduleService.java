@@ -52,11 +52,10 @@ public class ScheduleService {
     }
 
     @Transactional
-    public String deleteSchedule(Long id, ScheduleAccessRequestDto requestDto) {
+    public void deleteSchedule(Long id, ScheduleAccessRequestDto requestDto) {
         Schedule schedule = findSchedule(id);
         checkPassword(requestDto.getPassword(), schedule);
         scheduleRepository.delete(schedule);
-        return DELETE_SUCCESS; // String이 아니라 ResponseEntity 반환으로 바꿀 수는 없을까..?
     }
 
     public Schedule findSchedule(Long id) {
