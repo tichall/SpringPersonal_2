@@ -22,22 +22,18 @@ public class Schedule extends Timestamped{
     @Column(name = "contents", nullable = false, length = 400)
     private String contents;
 
-    @Column(name = "owner", nullable = false)
-    private String owner;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(name = "password", nullable = false)
-    private String password;
-
-    public Schedule(ScheduleRequestDto requestDto) {
+    public Schedule(ScheduleRequestDto requestDto, User user) {
         this.title = requestDto.getTitle();
         this.contents = requestDto.getContents();
-        this.owner = requestDto.getOwner();
-        this.password = requestDto.getPassword();
+        this.user = user;
     }
 
     public void update(ScheduleRequestDto requestDto) {
         this.title = requestDto.getTitle();
         this.contents = requestDto.getContents();
-        this.owner = requestDto.getOwner();
     }
 }

@@ -1,6 +1,5 @@
 package com.sparta.todoproject.entity;
 
-import com.sparta.todoproject.dto.CommentUpdateRequestDto;
 import com.sparta.todoproject.dto.CommentRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -19,9 +18,6 @@ public class Comment extends Timestamped {
 
     @Column(name = "contents", nullable = false, length = 500)
     private String contents;
-
-//    @Column(name = "user_id", nullable = false)
-//    private String userId;
 
     // fetch 타입..?
     @ManyToOne

@@ -34,7 +34,7 @@ public class UserService {
         Optional<User> checkUsername = userRepository.findByUsername(username);
 
         if(checkUsername.isPresent()) {
-            throw new IllegalArgumentException("이미 가입된 사용자 이름입니다.");
+            throw new IllegalArgumentException("중복된 username입니다.");
         }
 
         UserRoleEnum role = UserRoleEnum.USER;

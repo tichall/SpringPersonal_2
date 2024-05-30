@@ -77,7 +77,7 @@ public class CommentService {
         Comment comment = commentRepository.findByScheduleIdAndId(scheduleId, id).orElseThrow(() -> new ObjectNotFoundException("선택한 댓글은 존재하지 않습니다."));
 
         if(!Objects.equals(comment.getUser().getId(), userDetails.getUser().getId())) {
-            throw new IllegalArgumentException("댓글 작성자가 아닙니다.");
+            throw new IllegalArgumentException("댓글 작성자가 아니므로, 접근이 제한됩니다.");
         }
 
         return comment;

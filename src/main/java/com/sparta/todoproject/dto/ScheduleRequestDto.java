@@ -11,9 +11,4 @@ public class ScheduleRequestDto {
     @NotBlank
     private String contents;
 
-    @NotBlank
-    private String owner;
-
-    @NotBlank
-    private String password;
 }

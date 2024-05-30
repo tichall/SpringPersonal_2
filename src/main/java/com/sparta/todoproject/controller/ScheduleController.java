@@ -1,14 +1,15 @@
 package com.sparta.todoproject.controller;
 
 import com.sparta.todoproject.dto.ResponseMsg;
-import com.sparta.todoproject.dto.ScheduleAccessRequestDto;
 import com.sparta.todoproject.dto.ScheduleRequestDto;
 import com.sparta.todoproject.dto.ScheduleResponseDto;
+import com.sparta.todoproject.security.UserDetailsImpl;
 import com.sparta.todoproject.service.ScheduleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,11 +22,11 @@ public class ScheduleController {
     private final ScheduleService scheduleService;
 
     @PostMapping()
-    public ResponseEntity<ResponseMsg<ScheduleResponseDto>> createSchedule(@RequestBody @Valid ScheduleRequestDto requestDto) {
-        ScheduleResponseDto responseDto = scheduleService.createSchedule(requestDto);
+    public ResponseEntity<ResponseMsg<ScheduleResponseDto>> createSchedule(@RequestBody @Valid ScheduleRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        ScheduleResponseDto responseDto = scheduleService.createSchedule(requestDto, userDetails);
 
         ResponseMsg<ScheduleResponseDto> responseMsg = ResponseMsg.<ScheduleResponseDto>builder()
-                .statusCode(HttpStatus.OK.value())
+                .statusCode(HttpStatus.CREATED.value())
                 .message("일정이 추가되었습니다.")
                 .data(responseDto)
                 .build();
@@ -67,8 +68,8 @@ public class ScheduleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseMsg<ScheduleResponseDto>> updateSchedule(@PathVariable Long id, @RequestBody @Valid ScheduleRequestDto requestDto) {
-        ScheduleResponseDto responseDto = scheduleService.updateSchedule(id, requestDto);
+    public ResponseEntity<ResponseMsg<ScheduleResponseDto>> updateSchedule(@PathVariable Long id, @RequestBody @Valid ScheduleRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        ScheduleResponseDto responseDto = scheduleService.updateSchedule(id, requestDto, userDetails);
 
         ResponseMsg<ScheduleResponseDto> responseMsg = ResponseMsg.<ScheduleResponseDto>builder()
                 .statusCode(HttpStatus.OK.value())
@@ -82,8 +83,8 @@ public class ScheduleController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseMsg<Void>> deleteSchedule(@PathVariable Long id, @RequestBody @Valid ScheduleAccessRequestDto requestDto) {
-        scheduleService.deleteSchedule(id, requestDto);
+    public ResponseEntity<ResponseMsg<Void>> deleteSchedule(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        scheduleService.deleteSchedule(id, userDetails);
 
         ResponseMsg<Void> responseMsg = ResponseMsg.<Void>builder()
                 .statusCode(HttpStatus.OK.value())

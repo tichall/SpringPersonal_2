@@ -12,7 +12,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class) // validation 어길 경우 발생하는 예외
+    /**
+     * validation 관련 예외 처리
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ResponseMsg<String>> handleValidationException(MethodArgumentNotValidException e) {
         // validation 어기면 BindingResult에 오류 관련 내용이 담김
         BindingResult bindingResult = e.getBindingResult();
@@ -31,6 +36,7 @@ public class GlobalExceptionHandler {
 
         ResponseMsg<String> responseMsg = ResponseMsg.<String>builder()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
+                .message("올바르지 않은 입력이 있습니다.")
                 .data(builder.toString())
                 .build();
 
@@ -40,21 +46,16 @@ public class GlobalExceptionHandler {
                 .body(responseMsg);
     }
 
-    // 이렇게 해줬는데 사실 커스텀 예외 클래스들의 내용이 거의 같아서 굳이 따로 만들 필요가 있나 하는 생각이 든다... 그냥 Illegal로 다 처리해도 되지 않을까...
-    @ExceptionHandler(PasswordInvalidException.class)
-    public ResponseEntity<ErrorResponse> handlePasswordInvalidException(Exception e) {
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED, e.getMessage());
-        return ResponseEntity
-                .status(errorResponse.getStatus())
-                .body(errorResponse);
-    }
+    @ExceptionHandler(ObjectNotFoundException.class)
+    public ResponseEntity<ResponseMsg<Void>> handleObjectNotFoundException (Exception e) {
+        ResponseMsg<Void> responseMsg = ResponseMsg.<Void>builder()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .message(e.getMessage())
+                .build();
 
-    @ExceptionHandler({DeletedScheduleAccessException.class, ObjectNotFoundException.class})
-    public ResponseEntity<ErrorResponse> handleDeletedScheduleAccessException (Exception e) {
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
         return ResponseEntity
-                .status(errorResponse.getStatus())
-                .body(errorResponse);
+                .status(HttpStatus.NOT_FOUND)
+                .body(responseMsg);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -72,6 +73,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseMsg<Void>> handleException(Exception e) {
+
         ResponseMsg<Void> responseMsg = ResponseMsg.<Void>builder()
                 .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .message(e.getMessage())
