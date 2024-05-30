@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 public class CommentResponseDto {
+
     private Long id;
     private String contents;
     private String userId;

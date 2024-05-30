@@ -1,6 +1,6 @@
 package com.sparta.todoproject.service;
 
-import com.sparta.todoproject.dto.ScheduleDeleteRequestDto;
+import com.sparta.todoproject.dto.ScheduleAccessRequestDto;
 import com.sparta.todoproject.dto.ScheduleRequestDto;
 import com.sparta.todoproject.dto.ScheduleResponseDto;
 import com.sparta.todoproject.entity.Schedule;
@@ -52,7 +52,7 @@ public class ScheduleService {
     }
 
     @Transactional
-    public String deleteSchedule(Long id, ScheduleDeleteRequestDto requestDto) {
+    public String deleteSchedule(Long id, ScheduleAccessRequestDto requestDto) {
         Schedule schedule = findSchedule(id);
         checkPassword(requestDto.getPassword(), schedule);
         scheduleRepository.delete(schedule);

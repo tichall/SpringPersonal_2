@@ -3,11 +3,8 @@ package com.sparta.todoproject.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
-/**
- * 삭제 요청 DTO
- */
 @Getter
-public class CommentAccessRequestDto {
+public class ScheduleAccessRequestDto {
     @NotBlank
-    private String userId;
+    private String password;
 }

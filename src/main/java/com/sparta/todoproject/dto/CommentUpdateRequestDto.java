@@ -3,6 +3,6 @@ package com.sparta.todoproject.dto;
 import lombok.Getter;
 
 @Getter
-public class CommentUpdateRequestDto extends CommentAccessRequestDto{
-    private String contents;
+public class CommentUpdateRequestDto {
+//    private String contents;
 }

@@ -34,7 +34,7 @@ public class Comment extends Timestamped {
         this.schedule = schedule;
     }
 
-    public void update(CommentUpdateRequestDto requestDto) {
+    public void update(CommentRequestDto requestDto) {
         this.contents = requestDto.getContents();
     }
 }

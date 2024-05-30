@@ -1,9 +1,10 @@
 package com.sparta.todoproject.controller;
 
-import com.sparta.todoproject.dto.ScheduleDeleteRequestDto;
+import com.sparta.todoproject.dto.ScheduleAccessRequestDto;
 import com.sparta.todoproject.dto.ScheduleRequestDto;
 import com.sparta.todoproject.dto.ScheduleResponseDto;
 import com.sparta.todoproject.service.ScheduleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,7 @@ public class ScheduleController {
     private final ScheduleService scheduleService;
 
     @PostMapping()
-    public ScheduleResponseDto createSchedule(@RequestBody ScheduleRequestDto requestDto) {
+    public ScheduleResponseDto createSchedule(@RequestBody @Valid ScheduleRequestDto requestDto) {
         return scheduleService.createSchedule(requestDto);
     }
 
@@ -32,12 +33,12 @@ public class ScheduleController {
     }
 
     @PutMapping("/{id}")
-    public ScheduleResponseDto updateSchedule(@PathVariable Long id, @RequestBody ScheduleRequestDto requestDto) {
+    public ScheduleResponseDto updateSchedule(@PathVariable Long id, @RequestBody @Valid ScheduleRequestDto requestDto) {
         return scheduleService.updateSchedule(id, requestDto);
     }
 
     @DeleteMapping("/{id}")
-    public String deleteSchedule(@PathVariable Long id, @RequestBody ScheduleDeleteRequestDto requestDto) {
+    public String deleteSchedule(@PathVariable Long id, @RequestBody @Valid ScheduleAccessRequestDto requestDto) {
         return scheduleService.deleteSchedule(id, requestDto);
     }
 

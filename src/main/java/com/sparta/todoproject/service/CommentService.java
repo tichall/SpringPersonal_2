@@ -32,9 +32,9 @@ public class CommentService {
      * @return
      */
     @Transactional
-    public ResponseEntity<ResponseMsg<CommentResponseDto>> addComment(Long id, CommentRequestDto requestDto) {
-        checkContentsValid(requestDto);
-        Comment comment = new Comment(requestDto, scheduleService.findSchedule(id));
+    public ResponseEntity<ResponseMsg<CommentResponseDto>> addComment(Long scheduleId, CommentRequestDto requestDto) {
+        // checkContentsValid(requestDto);
+        Comment comment = new Comment(requestDto, scheduleService.findSchedule(scheduleId));
         commentRepository.save(comment);
 
         ResponseMsg<CommentResponseDto> responseMsg = ResponseMsg.<CommentResponseDto>builder()
@@ -57,10 +57,10 @@ public class CommentService {
      * @return
      */
     @Transactional
-    public ResponseEntity<ResponseMsg<CommentResponseDto>> updateComment(Long id, CommentUpdateRequestDto requestDto) {
-        Schedule schedule = scheduleService.findSchedule(id);
-        Comment comment = checkCommentValid(schedule, requestDto);
-        checkContentsValid(requestDto);
+    public ResponseEntity<ResponseMsg<CommentResponseDto>> updateComment(Long scheduleId, Long id, CommentRequestDto requestDto) {
+        Schedule schedule = scheduleService.findSchedule(scheduleId);
+        Comment comment = checkCommentValid(schedule.getId(), id, requestDto);
+        // checkContentsValid(requestDto);
 
         comment.update(requestDto);
         commentRepository.flush(); // 먼저 반영
@@ -85,9 +85,9 @@ public class CommentService {
      * @return
      */
     @Transactional
-    public ResponseEntity<ResponseMsg<Void>> deleteComment(Long id, CommentAccessRequestDto requestDto) {
-        Schedule schedule = scheduleService.findSchedule(id);
-        Comment comment = checkCommentValid(schedule, requestDto);
+    public ResponseEntity<ResponseMsg<Void>> deleteComment(Long scheduleId, Long id, CommentAccessRequestDto requestDto) {
+        Schedule schedule = scheduleService.findSchedule(scheduleId);
+        Comment comment = checkCommentValid(schedule.getId(), id, requestDto);
         commentRepository.delete(comment);
 
         // data 값 안 줘버리면 null값 찍힘
@@ -108,19 +108,14 @@ public class CommentService {
         }
     }
 
-    // 오버로딩
-    private void checkContentsValid(CommentUpdateRequestDto requestDto) {
-        if (requestDto.getContents() == null || requestDto.getContents().isBlank()) {
-            throw new IllegalArgumentException("댓글 내용이 비어있습니다.");
-        }
-    }
 
-    private Comment checkCommentValid(Schedule schedule, CommentAccessRequestDto requestDto) {
-        Comment comment = commentRepository.findByScheduleIdAndId(schedule.getId(), requestDto.getId()).orElseThrow(() -> new ObjectNotFoundException("선택한 댓글은 존재하지 않습니다."));
+    private Comment checkCommentValid(Long scheduleId, Long id, CommentAccessRequestDto requestDto) {
+        Comment comment = commentRepository.findByScheduleIdAndId(scheduleId, id).orElseThrow(() -> new ObjectNotFoundException("선택한 댓글은 존재하지 않습니다."));
 
         if(!Objects.equals(comment.getUserId(), requestDto.getUserId())) {
             throw new IllegalArgumentException("유저 아이디가 일치하지 않습니다.");
         }
         return comment;
     }
+
 }

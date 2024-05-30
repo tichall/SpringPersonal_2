@@ -2,11 +2,12 @@ package com.sparta.todoproject.controller;
 
 import com.sparta.todoproject.dto.*;
 import com.sparta.todoproject.service.CommentService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/schedules/{id}/comments")
+@RequestMapping("/api/schedules/{scheduleId}/comments")
 
 public class CommentController {
 
@@ -15,18 +16,37 @@ public class CommentController {
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
     }
+
+    /**
+     * 댓글 추가
+     * @param id
+     * @param requestDto
+     * @return
+     */
     @PostMapping
-    public ResponseEntity<ResponseMsg<CommentResponseDto>> addComment(@PathVariable Long id, @RequestBody CommentRequestDto requestDto) {
-        return commentService.addComment(id, requestDto);
+    public ResponseEntity<ResponseMsg<CommentResponseDto>> addComment(@PathVariable Long scheduleId, @RequestBody @Valid CommentRequestDto requestDto) {
+        return commentService.addComment(scheduleId, requestDto);
     }
 
-    @PutMapping
-    public ResponseEntity<ResponseMsg<CommentResponseDto>> updateComment(@PathVariable Long id, @RequestBody CommentUpdateRequestDto requestDto) {
-        return commentService.updateComment(id, requestDto);
+    /**
+     * 댓글 수정
+     * @param id
+     * @param requestDto
+     * @return
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseMsg<CommentResponseDto>> updateComment(@PathVariable Long scheduleId, @PathVariable Long id, @RequestBody @Valid CommentRequestDto requestDto) {
+        return commentService.updateComment(scheduleId, id, requestDto);
     }
 
-    @DeleteMapping
-    public ResponseEntity<ResponseMsg<Void>> deleteComment(@PathVariable Long id, @RequestBody CommentAccessRequestDto requestDto) {
-        return commentService.deleteComment(id, requestDto);
+    /**
+     * 댓글 삭제
+     * @param id
+     * @param requestDto
+     * @return
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseMsg<Void>> deleteComment(@PathVariable Long scheduleId, @PathVariable Long id, @RequestBody @Valid CommentAccessRequestDto requestDto) {
+        return commentService.deleteComment(scheduleId, id, requestDto);
     }
 }
