@@ -3,11 +3,16 @@ package com.sparta.todoproject.service;
 import com.sparta.todoproject.dto.*;
 import com.sparta.todoproject.entity.Comment;
 import com.sparta.todoproject.entity.Schedule;
+import com.sparta.todoproject.entity.User;
 import com.sparta.todoproject.exception.ObjectNotFoundException;
 import com.sparta.todoproject.repository.CommentRepository;
 import com.sparta.todoproject.repository.ScheduleRepository;
+import com.sparta.todoproject.repository.UserRepository;
+import com.sparta.todoproject.security.UserDetailsImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,26 +20,28 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class CommentService {
     private final CommentRepository commentRepository;
     private final ScheduleService scheduleService; // 여기 있는 메서드 쓰려고 이렇게 주입 받아와도 괜찮은가..?
+    private final UserRepository userRepository;
 
-    public CommentService(CommentRepository commentRepository,ScheduleService scheduleService) {
-        this.commentRepository = commentRepository;
-        this.scheduleService = scheduleService;
-    }
 
     /**
      * 댓글 추가
-     * @param id
+     * @param scheduleId
      * @param requestDto
      * @return
      */
     @Transactional
-    public ResponseEntity<ResponseMsg<CommentResponseDto>> addComment(Long scheduleId, CommentRequestDto requestDto) {
-        // checkContentsValid(requestDto);
-        Comment comment = new Comment(requestDto, scheduleService.findSchedule(scheduleId));
+    public ResponseEntity<ResponseMsg<CommentResponseDto>> addComment(Long scheduleId, CommentRequestDto requestDto, UserDetailsImpl userDetails) {
+        Schedule schedule = scheduleService.findSchedule(scheduleId);
+        User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow(() ->
+                new UsernameNotFoundException("존재하지 않는 사용자입니다.")
+        );
+
+        Comment comment = new Comment(requestDto, schedule, user);
         commentRepository.save(comment);
 
         ResponseMsg<CommentResponseDto> responseMsg = ResponseMsg.<CommentResponseDto>builder()
@@ -87,8 +94,8 @@ public class CommentService {
     @Transactional
     public ResponseEntity<ResponseMsg<Void>> deleteComment(Long scheduleId, Long id, CommentAccessRequestDto requestDto) {
         Schedule schedule = scheduleService.findSchedule(scheduleId);
-        Comment comment = checkCommentValid(schedule.getId(), id, requestDto);
-        commentRepository.delete(comment);
+//        Comment comment = checkCommentValid(schedule.getId(), id, requestDto);
+//        commentRepository.delete(comment);
 
         // data 값 안 줘버리면 null값 찍힘
         ResponseMsg<Void> responseMsg = ResponseMsg.<Void>builder()
@@ -109,13 +116,12 @@ public class CommentService {
     }
 
 
-    private Comment checkCommentValid(Long scheduleId, Long id, CommentAccessRequestDto requestDto) {
+    private Comment checkCommentValid(Long scheduleId, Long id, CommentRequestDto requestDto) {
         Comment comment = commentRepository.findByScheduleIdAndId(scheduleId, id).orElseThrow(() -> new ObjectNotFoundException("선택한 댓글은 존재하지 않습니다."));
 
-        if(!Objects.equals(comment.getUserId(), requestDto.getUserId())) {
-            throw new IllegalArgumentException("유저 아이디가 일치하지 않습니다.");
-        }
+//        if(!Objects.equals(comment.getUserId(), requestDto.getUserId())) {
+//            throw new IllegalArgumentException("유저 아이디가 일치하지 않습니다.");
+//        }
         return comment;
     }
-
 }

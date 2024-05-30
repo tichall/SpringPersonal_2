@@ -60,10 +60,11 @@ public class ScheduleService {
     }
 
     public Schedule findSchedule(Long id) {
-        Optional<Schedule> schedule = scheduleRepository.findById(id);
+        // 가장 최근에 생성된 일정 조회
+        Schedule schedule = scheduleRepository.findTopByOrderByIdDesc().orElseThrow(() -> new IllegalArgumentException("일정이 존재하지 않습니다."));
 
         return scheduleRepository.findById(id).orElseThrow(() -> {
-            if (id < scheduleRepository.findTopByOrderByIdDesc().getId()) {
+            if (id < schedule.getId()) {
                 throw new DeletedScheduleAccessException("삭제된 일정 접근");
             }
             throw new ObjectNotFoundException("선택한 일정은 존재하지 않습니다!");

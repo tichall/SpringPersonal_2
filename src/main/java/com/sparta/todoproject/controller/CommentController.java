@@ -1,9 +1,11 @@
 package com.sparta.todoproject.controller;
 
 import com.sparta.todoproject.dto.*;
+import com.sparta.todoproject.security.UserDetailsImpl;
 import com.sparta.todoproject.service.CommentService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,13 +21,13 @@ public class CommentController {
 
     /**
      * 댓글 추가
-     * @param id
+     * @param scheduleId
      * @param requestDto
      * @return
      */
     @PostMapping
-    public ResponseEntity<ResponseMsg<CommentResponseDto>> addComment(@PathVariable Long scheduleId, @RequestBody @Valid CommentRequestDto requestDto) {
-        return commentService.addComment(scheduleId, requestDto);
+    public ResponseEntity<ResponseMsg<CommentResponseDto>> addComment(@PathVariable Long scheduleId, @RequestBody @Valid CommentRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return commentService.addComment(scheduleId, requestDto, userDetails);
     }
 
     /**
