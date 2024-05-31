@@ -12,11 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * validation 관련 예외 처리
-     * @param e
-     * @return
-     */
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ResponseMsg<String>> handleValidationException(MethodArgumentNotValidException e) {
         // validation 어기면 BindingResult에 오류 관련 내용이 담김
@@ -31,7 +27,7 @@ public class GlobalExceptionHandler {
                     .append(" => 입력된 값 : [")
                     .append(fieldError.getRejectedValue())
                     .append("]");
-            builder.append(" | ");
+            builder.append(System.lineSeparator());
         }
 
         ResponseMsg<String> responseMsg = ResponseMsg.<String>builder()

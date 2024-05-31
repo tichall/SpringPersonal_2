@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -29,11 +30,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try {
             LoginRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
-            // 아직 권한값은 모르므로 null로 설정..? DB에서 비교해서 설정해줘야 함??
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(requestDto.getUsername(), requestDto.getPassword(), null)
             );
-        } catch (IOException e) {
+        } catch (IOException e) { // 여기가 이해가 안됨..
             log.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
@@ -52,7 +52,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     // 로그인 실패 시
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        response.setStatus(400);
+        jwtUtil.setErrorResponse(response, HttpStatus.BAD_REQUEST, "로그인 실패");
         log.error("로그인 실패");
     }
 }
