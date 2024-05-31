@@ -5,6 +5,7 @@
 - 유저가 아니더라도 일정, 댓글 조회는 가능하다.
 
 [ERD 다이어그램](erd-다이어그램)
+
 [API 명세](api-명세)
 
 <br>
@@ -18,4 +19,8 @@
 
 ## API 명세
 
-[Notion에서 확인하기](https://www.notion.so/synge-st/spring-personal-todoApp-API-48ba5ee3c39048ecb058e0ab8dc735f7?pvs=4)
+[✔ Notion에서 확인하기](https://www.notion.so/synge-st/spring-personal-todoApp-API-48ba5ee3c39048ecb058e0ab8dc735f7?pvs=4)
+
+
+
+
