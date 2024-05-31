@@ -26,6 +26,7 @@ public class ScheduleService {
         return new ScheduleResponseDto(saveSchedule);
     }
 
+    // 여기서 일정 하나도 없으면..?
     public List<ScheduleResponseDto> getSchedules() {
         return scheduleRepository.findAllByOrderByCreatedAtDesc().stream().map(ScheduleResponseDto::new).toList();
     }

@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -24,12 +25,17 @@ public class CommentService {
     private final UserRepository userRepository;
 
 
-    /**
-     * 댓글 추가
-     * @param scheduleId
-     * @param requestDto
-     * @return
-     */
+    public CommentResponseDto getCommentById(Long scheduleId, Long id) {
+        Comment comment = findComment(scheduleId, id);
+        return new CommentResponseDto(comment);
+    }
+
+    public List<CommentResponseDto> getComments(Long scheduleId) {
+        Schedule schedule = scheduleService.findSchedule(scheduleId);
+
+        return commentRepository.findAllByScheduleId(schedule.getId()).stream().map(CommentResponseDto::new).toList();
+    }
+
     @Transactional
     public CommentResponseDto addComment(Long scheduleId, CommentRequestDto requestDto, UserDetailsImpl userDetails) {
         Schedule schedule = scheduleService.findSchedule(scheduleId);
@@ -43,17 +49,10 @@ public class CommentService {
         return new CommentResponseDto(comment);
     }
 
-    /**
-     * 댓글 수정
-     *
-     * @param id
-     * @param requestDto
-     * @return
-     */
     @Transactional
     public CommentResponseDto updateComment(Long scheduleId, Long id, CommentRequestDto requestDto, UserDetailsImpl userDetails) {
-        Schedule schedule = scheduleService.findSchedule(scheduleId);
-        Comment comment = findComment(schedule.getId(), id, userDetails);
+        Comment comment = findComment(scheduleId, id);
+        checkCommentUser(comment, userDetails);
 
         comment.update(requestDto);
         commentRepository.flush(); // 먼저 반영
@@ -62,24 +61,25 @@ public class CommentService {
 
     }
 
-
     @Transactional
     public void deleteComment(Long scheduleId, Long id, UserDetailsImpl userDetails) {
-        Schedule schedule = scheduleService.findSchedule(scheduleId);
 
-        Comment comment = findComment(schedule.getId(), id, userDetails);
-
+        Comment comment = findComment(scheduleId, id);
+        checkCommentUser(comment, userDetails);
         commentRepository.delete(comment);
     }
 
+    private Comment findComment(Long scheduleId, Long id) {
+        Schedule schedule = scheduleService.findSchedule(scheduleId);
 
-    private Comment findComment(Long scheduleId, Long id, UserDetailsImpl userDetails) {
-        Comment comment = commentRepository.findByScheduleIdAndId(scheduleId, id).orElseThrow(() -> new ObjectNotFoundException("선택한 댓글은 존재하지 않습니다."));
+        return commentRepository.findByScheduleIdAndId(schedule.getId(), id).orElseThrow(() -> new ObjectNotFoundException("선택한 댓글은 존재하지 않습니다."));
+
+    }
+
+    private void checkCommentUser(Comment comment, UserDetailsImpl userDetails) {
 
         if(!Objects.equals(comment.getUser().getId(), userDetails.getUser().getId())) {
             throw new IllegalArgumentException("댓글 작성자가 아니므로, 접근이 제한됩니다.");
         }
-
-        return comment;
     }
 }
