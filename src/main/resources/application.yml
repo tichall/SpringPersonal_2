@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USER}
+    url: jdbc:mysql://localhost:3307/todoapp
+    password: ${DB_PASSWORD}
+  jpa:
+    properties:
+      hibernate:
+        format_sql: 'true'
+        use_sql_comments: 'true'
+        show_sql: 'true'
+    hibernate:
+      ddl-auto: update
+admin:
+  token: ${ADMIN_TOKEN}
+jwt:
+  secret:
+    key: ${JWT_SECRET_TOKEN}

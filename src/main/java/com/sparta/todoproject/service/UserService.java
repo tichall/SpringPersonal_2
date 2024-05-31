@@ -7,6 +7,7 @@ import com.sparta.todoproject.entity.User;
 import com.sparta.todoproject.entity.UserRoleEnum;
 import com.sparta.todoproject.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,7 +24,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    private final String ADMIN_TOKEN = "aAJOFkdfnaoADSCADAsdfawsjtdrkAIxckl";
+//    @Value("${admin.token}")
+    private String ADMIN_TOKEN = "aAJOFkdfnaoADSCADAsdfawsjtdrkAIxckl";
 
     @Transactional
     public ResponseEntity<ResponseMsg<SignupResponseDto>> signup(SignupRequestDto requestDto) {
