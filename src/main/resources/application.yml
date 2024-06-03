@@ -13,7 +13,7 @@ spring:
     hibernate:
       ddl-auto: update
 admin:
-  token: ${ADMIN_TOKEN}
+  token: aAJOFkdfnaoADSCADAsdfawsjtdrkAIxckl
 jwt:
   secret:
     key: ${JWT_SECRET_TOKEN}

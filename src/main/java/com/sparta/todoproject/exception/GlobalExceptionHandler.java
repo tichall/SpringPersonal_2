@@ -1,8 +1,15 @@
 package com.sparta.todoproject.exception;
 
 import com.sparta.todoproject.dto.ResponseMsg;
+import com.sparta.todoproject.jwt.ResponseUtil;
+import com.sparta.todoproject.statusCode.ErrorCode;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,7 +18,41 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler({SecurityException.class,SignatureException.class, MalformedJwtException.class})
+    public ResponseEntity<ResponseMsg<Void>> handleInvalidTokenSignature(Exception e) {
+        ResponseMsg<Void> responseMsg = ResponseMsg.<Void>builder()
+                .statusCode(ErrorCode.INVALID_TOKEN_SIGNATURE.getStatusCode())
+                .message(ErrorCode.INVALID_TOKEN_SIGNATURE.getMessage())
+                .build();
 
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(responseMsg);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ResponseMsg<Void>> handleExpiredToken(Exception e) {
+        ResponseMsg<Void> responseMsg = ResponseMsg.<Void>builder()
+                .statusCode(ErrorCode.EXPIRED_TOKEN.getStatusCode())
+                .message(ErrorCode.EXPIRED_TOKEN.getMessage())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(responseMsg);
+    }
+
+    @ExceptionHandler(UnsupportedJwtException.class)
+    public ResponseEntity<ResponseMsg<Void>> handleUnsupportedToken(Exception e) {
+        ResponseMsg<Void> responseMsg = ResponseMsg.<Void>builder()
+                .statusCode(ErrorCode.UNSUPPORTED_TOKEN.getStatusCode())
+                .message(ErrorCode.UNSUPPORTED_TOKEN.getMessage())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(responseMsg);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ResponseMsg<String>> handleValidationException(MethodArgumentNotValidException e) {

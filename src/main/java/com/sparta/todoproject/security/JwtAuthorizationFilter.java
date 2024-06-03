@@ -24,24 +24,34 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
 
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = jwtUtil.getTokenFromHeader(request);
+        String servletPath = request.getServletPath(); //
+        // 리프레쉬 요청 시 액세스 토큰 검증 X..?
+        if (servletPath.equals("/api/refresh")) {
+            filterChain.doFilter(request, response);
+        }
 
-        if (StringUtils.hasText(token)) {
-            if (!jwtUtil.validateToken(token, response)) {
-                log.error("Token error");
-                return;
+        String token = jwtUtil.getTokenFromHeader(request); // 헤더에서 토큰값만 가져오기
+
+        if (StringUtils.hasText(token)) { // 토큰값이 존재하면
+            try {
+                jwtUtil.validateToken(token, request); // 토큰값 유효한지 아닌지 검사..
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
 
             Claims info = jwtUtil.getUserInfoFromToken(token);
+
             try {
-                setAuthentication(info.getSubject());
+                setAuthentication(info.getSubject()); // 이거 실행하고 나서 어떻게 되는 거지
             } catch (Exception e) {
                 log.error(e.getMessage());
-                return; // 이렇게 되면 다음 체인으로 안 넘어가는 거..?
+                return; // 필터 체인 중단
             }
         }
+
         log.info("Token이 존재하지 않습니다.");
         filterChain.doFilter(request, response);
     }

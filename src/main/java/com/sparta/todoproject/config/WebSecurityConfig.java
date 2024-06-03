@@ -1,10 +1,7 @@
 package com.sparta.todoproject.config;
 
 import com.sparta.todoproject.jwt.JwtUtil;
-import com.sparta.todoproject.security.JwtAuthenticationFilter;
-import com.sparta.todoproject.security.JwtAuthorizationFilter;
-import com.sparta.todoproject.security.UserDetailsImpl;
-import com.sparta.todoproject.security.UserDetailsServiceImpl;
+import com.sparta.todoproject.security.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -28,6 +26,7 @@ import java.nio.file.PathMatcher;
 public class WebSecurityConfig {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
     private final AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
@@ -38,6 +37,11 @@ public class WebSecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public ExceptionHandlerFilter exceptionHandlerFilter() {
+        return new ExceptionHandlerFilter();
     }
 
     // 인가 필터
@@ -73,9 +77,11 @@ public class WebSecurityConfig {
                                 .requestMatchers(HttpMethod.GET).permitAll()
                                 .anyRequest().authenticated()
         );
-
-        http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
+        http.exceptionHandling(handler -> handler.authenticationEntryPoint(authenticationEntryPoint));
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
+        http.addFilterBefore(exceptionHandlerFilter(), JwtAuthorizationFilter.class);
+        // ExceptionHandlerFilter -> JwtAuthorizationFilter -> JwtAuthenticationFilter
 
         return http.build();
     }

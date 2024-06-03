@@ -24,8 +24,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-//    @Value("${admin.token}")
-    private String ADMIN_TOKEN = "aAJOFkdfnaoADSCADAsdfawsjtdrkAIxckl";
+    @Value("${admin.token}")
+    private String ADMIN_TOKEN;
 
     @Transactional
     public ResponseEntity<ResponseMsg<SignupResponseDto>> signup(SignupRequestDto requestDto) {
