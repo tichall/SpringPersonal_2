@@ -4,11 +4,9 @@ import com.sparta.todoproject.dto.CommentRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @Table(name = "comment")
 @NoArgsConstructor // 이거 필요한 이유??
 public class Comment extends Timestamped {

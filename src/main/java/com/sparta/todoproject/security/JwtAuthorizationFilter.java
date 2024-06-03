@@ -1,6 +1,6 @@
 package com.sparta.todoproject.security;
 
-import com.sparta.todoproject.jwt.JwtUtil;
+import com.sparta.todoproject.jwt.JwtTokenHelper;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,20 +21,26 @@ import java.io.IOException;
 @Slf4j(topic = "JWT 토큰 검증 및 인가")
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
-    private final JwtUtil jwtUtil;
+    private final JwtTokenHelper jwtTokenHelper;
     private final UserDetailsServiceImpl userDetailsService;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = jwtUtil.getTokenFromHeader(request);
+        String servletPath = request.getServletPath(); //
+        // 리프레쉬 요청 시 액세스 토큰 검증 X..?
+        if (servletPath.equals("/api/refresh")) {
+            filterChain.doFilter(request, response);
+        }
+
+        String token = jwtTokenHelper.getTokenFromHeader(request); // 헤더에서 토큰값만 가져오기
 
         if (StringUtils.hasText(token)) {
-            if (!jwtUtil.validateToken(token, response)) {
+            if (!jwtTokenHelper.validateToken(token, response)) {
                 log.error("Token error");
                 return;
             }
-
-            Claims info = jwtUtil.getUserInfoFromToken(token);
+            Claims info = jwtTokenHelper.getUserInfoFromToken(token);
             try {
                 setAuthentication(info.getSubject());
             } catch (Exception e) {
@@ -42,8 +48,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 return; // 이렇게 되면 다음 체인으로 안 넘어가는 거..?
             }
         }
+
         log.info("Token이 존재하지 않습니다.");
         filterChain.doFilter(request, response);
+
     }
 
     // 인증 처리

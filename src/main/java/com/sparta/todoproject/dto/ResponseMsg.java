@@ -16,11 +16,4 @@ public class ResponseMsg<T> {
     private String message;
     private T data;
 
-//    public ResponseEntity<ResponseMsg<T>> createSuccessResponseMsg(T data, String message) {
-//        ResponseMsg<T> responseMsg = new ResponseMsg<>(HttpStatus.OK.value(), message, data);
-//
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .body(responseMsg);
-//    }
 }

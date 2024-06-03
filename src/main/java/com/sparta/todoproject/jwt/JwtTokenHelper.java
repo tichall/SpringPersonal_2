@@ -1,36 +1,32 @@
 package com.sparta.todoproject.jwt;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.todoproject.dto.ResponseMsg;
 import com.sparta.todoproject.entity.UserRoleEnum;
+import com.sparta.todoproject.statusCode.ErrorCode;
+import com.sparta.todoproject.util.ResponseUtil;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.security.core.parameters.P;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
 @Slf4j(topic = "JwtUtil")
 @Component
-public class JwtUtil {
+public class JwtTokenHelper {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String AUTHORIZATION_KEY = "auth";
     public static final String BEARER_PREFIX = "Bearer ";
     // token 만료 시간 : 60분
-    private final long TOKEN_TIME = 60 * 60 * 1000L;
+    private final long ACCESS_TOKEN_TIME = 24 * 60 * 60 * 1000L; // test 위해 하루로 설정
+    private final long REFRESH_TOKEN_TIME = 24 * 60 * 60 * 1000L; // test 위해 하루로 설정
 
     @Value("${jwt.secret.key}")
     private String secretKey;
@@ -47,15 +43,23 @@ public class JwtUtil {
     public String createToken(String username, UserRoleEnum role) {
         Date date = new Date();
 
+        // Refresh Token 생성
+        String refreshToken = Jwts.builder()
+                .setExpiration(new Date(date.getTime() + REFRESH_TOKEN_TIME))
+                .signWith(key, signatureAlgorithm)
+                .compact();
+
         return BEARER_PREFIX +
                 Jwts.builder()
                         .setSubject(username)
                         .claim(AUTHORIZATION_KEY, role)
-                        .setExpiration(new Date(date.getTime() + TOKEN_TIME))
+                        .setExpiration(new Date(date.getTime() + ACCESS_TOKEN_TIME))
                         .setIssuedAt(date)
                         .signWith(key, signatureAlgorithm)
                         .compact();
+
     }
+
 
     // request header에서 JWT 토큰값 가져오기
     public String getTokenFromHeader(HttpServletRequest request) {
@@ -69,43 +73,28 @@ public class JwtUtil {
     }
 
     // 토큰값 검증
-    public boolean validateToken(String token, HttpServletResponse response) {
+    public boolean validateToken(String token, HttpServletResponse response){
         try {
             // key를 사용해 올바르게 JWT 검증
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (SecurityException | SignatureException | MalformedJwtException e) {
-            setErrorResponse(response, HttpStatus.BAD_REQUEST, "유효하지 않은 JWT 서명입니다.");
+        } catch (SecurityException | io.jsonwebtoken.security.SignatureException | MalformedJwtException e) {
+            ResponseUtil.setErrorResponse(response, ErrorCode.INVALID_TOKEN_SIGNATURE);
         } catch (ExpiredJwtException e) {
-            setErrorResponse(response, HttpStatus.BAD_REQUEST, "만료된 JWT 토큰입니다.");
+            ResponseUtil.setErrorResponse(response, ErrorCode.EXPIRED_TOKEN);
         } catch (UnsupportedJwtException e) {
-            setErrorResponse(response, HttpStatus.BAD_REQUEST, "지원되지 않는 JWT 토큰입니다.");
-        } catch (IllegalArgumentException e) {
-            setErrorResponse(response, HttpStatus.BAD_REQUEST, "잘못된 JWT 토큰입니다.");
+            ResponseUtil.setErrorResponse(response, ErrorCode.UNSUPPORTED_TOKEN);
+        } catch (AuthenticationServiceException e) {
+            ResponseUtil.setErrorResponse(response, ErrorCode.LOGIN_FAILED);
+        } catch (Exception e) {
+            ResponseUtil.setErrorResponse(response, ErrorCode.INVALID_TOKEN);
         }
         return false;
     }
 
-    // 토큰에서 페이로드값(클레임) 가져오기
+    // 액세스 토큰에서 페이로드값(클레임) 가져오기
     public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-    }
-
-
-    public void setErrorResponse(HttpServletResponse response, HttpStatus status, String msg) {
-        response.setStatus(status.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE); // MessageBody에 Json 데이터를 보내기 위한 설정
-        response.setCharacterEncoding("UTF-8");
-        ResponseMsg<Void> responseMsg = ResponseMsg.<Void>builder()
-                .statusCode(status.value())
-                .message(msg)
-                .build();
-        try {
-            String result = new ObjectMapper().writeValueAsString(responseMsg);
-            response.getWriter().write(result);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 }
