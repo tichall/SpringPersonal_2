@@ -3,6 +3,7 @@ package com.sparta.todoproject.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.todoproject.dto.ResponseMsg;
 import com.sparta.todoproject.entity.UserRoleEnum;
+import com.sparta.todoproject.statusCode.ErrorCode;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -75,37 +77,28 @@ public class JwtUtil {
     }
 
     // 토큰값 검증
-    public void validateToken(String token, HttpServletRequest request) throws Exception{
+    public boolean validateToken(String token, HttpServletResponse response){
         try {
             // key를 사용해 올바르게 JWT 검증
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-
+            return true;
+        } catch (SecurityException | io.jsonwebtoken.security.SignatureException | MalformedJwtException e) {
+            ResponseUtil.setErrorResponse(response, ErrorCode.INVALID_TOKEN_SIGNATURE);
+        } catch (ExpiredJwtException e) {
+            ResponseUtil.setErrorResponse(response, ErrorCode.EXPIRED_TOKEN);
+        } catch (UnsupportedJwtException e) {
+            ResponseUtil.setErrorResponse(response, ErrorCode.UNSUPPORTED_TOKEN);
+        } catch (AuthenticationServiceException e) {
+            ResponseUtil.setErrorResponse(response, ErrorCode.LOGIN_FAILED);
         } catch (Exception e) {
-            log.error("인증 에러");
-            request.setAttribute("exception", e); // 발생한 예외 저장하기
+            ResponseUtil.setErrorResponse(response, ErrorCode.INVALID_TOKEN);
         }
+        return false;
     }
 
     // 액세스 토큰에서 페이로드값(클레임) 가져오기
     public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-    }
-
-
-    public void setErrorResponse(HttpServletResponse response, HttpStatus status, String msg) {
-        response.setStatus(status.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE); // MessageBody에 Json 데이터를 보내기 위한 설정
-        response.setCharacterEncoding("UTF-8");
-        ResponseMsg<Void> responseMsg = ResponseMsg.<Void>builder()
-                .statusCode(status.value())
-                .message(msg)
-                .build();
-        try {
-            String result = new ObjectMapper().writeValueAsString(responseMsg); // json 형태의 데이터를 String으로 변환
-            response.getWriter().write(result);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 }

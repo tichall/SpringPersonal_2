@@ -8,7 +8,6 @@ import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @Table(name = "schedule")
 @NoArgsConstructor
 public class Schedule extends Timestamped{

@@ -25,8 +25,9 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
     public AuthenticationEntryPointImpl(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
         this.resolver = resolver;
     }
+
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        resolver.resolveException(request, response, null, (Exception) request.getAttribute("exception")); // re
+        resolver.resolveException(request, response, null, (Exception) request.getAttribute("exception"));
     }
 }

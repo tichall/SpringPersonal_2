@@ -77,10 +77,10 @@ public class WebSecurityConfig {
                                 .requestMatchers(HttpMethod.GET).permitAll()
                                 .anyRequest().authenticated()
         );
-        http.exceptionHandling(handler -> handler.authenticationEntryPoint(authenticationEntryPoint));
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
+
         // http.addFilterBefore(exceptionHandlerFilter(), JwtAuthorizationFilter.class);
+        http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         // ExceptionHandlerFilter -> JwtAuthorizationFilter -> JwtAuthenticationFilter
 
         return http.build();
