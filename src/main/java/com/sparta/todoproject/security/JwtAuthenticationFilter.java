@@ -4,16 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.todoproject.dto.LoginRequestDto;
 import com.sparta.todoproject.dto.LoginResponseDto;
 import com.sparta.todoproject.entity.UserRoleEnum;
-import com.sparta.todoproject.jwt.JwtUtil;
-import com.sparta.todoproject.jwt.ResponseUtil;
+import com.sparta.todoproject.jwt.JwtTokenHelper;
+import com.sparta.todoproject.util.ResponseUtil;
 import com.sparta.todoproject.statusCode.ErrorCode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -23,9 +21,9 @@ import java.io.IOException;
 
 @Slf4j(topic = "로그인 및 JWT 생성")
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-    private final JwtUtil jwtUtil;
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
+    private final JwtTokenHelper jwtTokenHelper;
+    public JwtAuthenticationFilter(JwtTokenHelper jwtTokenHelper) {
+        this.jwtTokenHelper = jwtTokenHelper;
         setFilterProcessesUrl("/api/user/login");
     }
 
@@ -49,8 +47,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String username = userDetails.getUsername();
         UserRoleEnum role = userDetails.getUser().getRole();
 
-        String token = jwtUtil.createToken(username, role);
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        String token = jwtTokenHelper.createToken(username, role);
+        response.addHeader(JwtTokenHelper.AUTHORIZATION_HEADER, token);
         ResponseUtil.setSuccessResponse(response, new LoginResponseDto(userDetails), "로그인 성공");
     }
 

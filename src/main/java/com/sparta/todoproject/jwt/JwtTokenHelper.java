@@ -1,9 +1,8 @@
 package com.sparta.todoproject.jwt;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.todoproject.dto.ResponseMsg;
 import com.sparta.todoproject.entity.UserRoleEnum;
 import com.sparta.todoproject.statusCode.ErrorCode;
+import com.sparta.todoproject.util.ResponseUtil;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -11,20 +10,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
 @Slf4j(topic = "JwtUtil")
 @Component
-public class JwtUtil {
+public class JwtTokenHelper {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String AUTHORIZATION_KEY = "auth";
     public static final String BEARER_PREFIX = "Bearer ";

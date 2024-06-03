@@ -1,6 +1,6 @@
 package com.sparta.todoproject.config;
 
-import com.sparta.todoproject.jwt.JwtUtil;
+import com.sparta.todoproject.jwt.JwtTokenHelper;
 import com.sparta.todoproject.security.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -18,15 +18,12 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.nio.file.PathMatcher;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
-    private final JwtUtil jwtUtil;
+    private final JwtTokenHelper jwtTokenHelper;
     private final UserDetailsServiceImpl userDetailsService;
-    private final AuthenticationEntryPoint authenticationEntryPoint;
     private final AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
@@ -39,21 +36,16 @@ public class WebSecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    @Bean
-    public ExceptionHandlerFilter exceptionHandlerFilter() {
-        return new ExceptionHandlerFilter();
-    }
-
     // 인가 필터
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
+        return new JwtAuthorizationFilter(jwtTokenHelper, userDetailsService);
     }
 
     // 인증 필터
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtTokenHelper);
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
         return filter;
     }

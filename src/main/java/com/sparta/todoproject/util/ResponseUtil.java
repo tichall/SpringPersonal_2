@@ -1,4 +1,4 @@
-package com.sparta.todoproject.jwt;
+package com.sparta.todoproject.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.todoproject.dto.LoginResponseDto;
