@@ -80,7 +80,7 @@ public class WebSecurityConfig {
         http.exceptionHandling(handler -> handler.authenticationEntryPoint(authenticationEntryPoint));
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
-        http.addFilterBefore(exceptionHandlerFilter(), JwtAuthorizationFilter.class);
+        // http.addFilterBefore(exceptionHandlerFilter(), JwtAuthorizationFilter.class);
         // ExceptionHandlerFilter -> JwtAuthorizationFilter -> JwtAuthenticationFilter
 
         return http.build();
